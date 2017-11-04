@@ -77,13 +77,14 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);  
 
     // Vertex data
-    int points = 4;
+    int points = 5;
     int total = points*2+2;
     float q = 360.0f/points;
     float r = 0.5f;
     float r2 = 0.15f;
     double angle1, angle2;
-    int length = total*3+3;
+    int length = total*3;
+    printf("length=%d\n",length);
     float *vertices = new float[length] {0.0f};
 
     for(int i=1,n=0;n<=points;i+=2,n++){
@@ -104,15 +105,19 @@ int main()
     glBindVertexArray(VAO);
     // 2. Copy vertices array in a buffer for OpenGL to use
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, length*sizeof(float), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, length*sizeof(float), vertices, 
+                 GL_STATIC_DRAW);
     // 3. Set vertex attribute pointers
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     // 4. Vertices no longer needed
     delete[] vertices;
 
+    // Uniforms
+    int vertexColorLocation = glGetUniformLocation(shaderProgram, "xColor");
+
     // Display settings
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     
     // Main loop
     while(!glfwWindowShouldClose(window))
@@ -121,7 +126,10 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        float timeValue = glfwGetTime();
+        float greenValue = sin(timeValue) / 2.0f + 0.5f;
         glUseProgram(shaderProgram);
+        glUniform4f(vertexColorLocation, 1.0f, greenValue, 0.0f, 1.0f);
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLE_FAN, 0, total);
 
@@ -143,7 +151,7 @@ unsigned int addShader(const char* fileName,
                        unsigned int shaderType) {
     int success;
     char infoLog[512];
-    char buffer[MAX_BUFF_SIZE];
+    char buffer[MAX_BUFF_SIZE+1];
     char* typeName = (char*)(shaderType == GL_VERTEX_SHADER 
                              ? "VERTEX" : "FRAGMENT");
 
@@ -212,15 +220,13 @@ char* readFile(const char* name, char* buffer) {
         fprintf(stderr, "Error in opening file %s\n", name);
     }
 
-    while((pos = read(fd,buffer,MAX_BUFF_SIZE)) > 0) {
-        buffer[pos] = '\0';
-    }
-    
+    pos = read(fd,buffer,MAX_BUFF_SIZE);
     close(fd);
+     
+    buffer[pos] = '\0';
 
-    int n = strlen(buffer);
-    char* result = (char*) malloc(n+1);
-    memcpy(result,buffer,n);
+    char* result = (char*) malloc(pos+1);
+    memcpy(result, buffer, pos+1);
 
     return result; 
 }
