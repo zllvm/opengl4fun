@@ -9,7 +9,7 @@
 
 #define PI 3.14159265
 #define MAX_BUFF_SIZE 1024*256
-#define NUMBER_OF_POINTS 4 // number of star verteces
+#define NUMBER_OF_POINTS 4 // number of star vertices
 
 // Functions declarations
 char* readFile(const char* name, char* buffer);
