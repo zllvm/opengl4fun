@@ -84,7 +84,6 @@ int main()
     float r2 = 0.15f;
     double angle1, angle2;
     int length = total*3;
-    printf("length=%d\n",length);
     float *vertices = new float[length] {0.0f};
 
     for(int i=1,n=0;n<=points;i+=2,n++){
